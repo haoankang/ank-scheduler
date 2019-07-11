@@ -1,0 +1,705 @@
+swagger: "2.0"
+info:
+  description: "调度中心"
+  version: "1.0.0"
+  title: "ank-scheduler"
+tags:
+- name: "executor"
+  description: "执行器端调用接口"
+- name: "task"
+  description: "任务相关接口"
+- name: "job"
+  description: "作业基本信息接口"
+- name: "job-run"
+  description: "作业运行相关接口"
+schemes:
+- "http"
+produces:
+- "application/json"
+securityDefinitions:
+  token:
+    type: apiKey
+    name: Authorization
+    in: header
+security:
+- token: []
+paths:
+  /executor/registry:
+    post:
+      tags:
+        - "executor"
+      summary: "注册执行器"
+      operationId: registryExecutor
+      parameters:
+        - in: body
+          name: "body"
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: "success"
+          schema:
+            $ref: '#/definitions/DefaultResponse'
+  /executor/registryService:
+    post:
+      tags:
+        - "executor"
+      summary: "注册服务"
+      operationId: registryService
+      parameters:
+        - in: body
+          name: "registryServiceParam"
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: "success"
+          schema:
+            $ref: '#/definitions/DefaultResponse'
+  /executor/heartbeat:
+    get:
+      tags:
+        - "executor"
+      summary: "执行器端心跳监测"
+      operationId: schedulerHeartBeat
+      responses:
+        200:
+          description: "success"
+  /executor/callback:
+    post:
+      tags:
+        - "executor"
+      summary: "执行器端回调运行结果"
+      operationId: executorCallback
+      parameters:
+        - in: body
+          name: returnT
+          required: true
+          schema:
+            type: object
+      responses:
+        200:
+          description: "success"
+          schema:
+            type: string
+  /executor/list:
+    get:
+      tags:
+        - "executor"
+      summary: "执行器列表"
+      operationId: executorList
+      responses:
+        200:
+          description: "success"
+          schema:
+            type: object
+  /task/list:
+    get:
+      tags:
+        - "task"
+      summary: "任务列表"
+      operationId: taskList
+      parameters:
+        -
+      responses:
+        200:
+          description: "success"
+          schema:
+            $ref: '#/definitions/TaskData'
+  /task/params/{appName}/{taskName}:
+    post:
+      tags:
+        - "task"
+      summary: "获取任务所有(过滤)参数列表"
+      operationId: taskParams
+      parameters:
+        - in: path
+          name: appName
+          type: string
+          required: true
+          description: "执行器名"
+        - in: path
+          name: taskName
+          type: string
+          required: true
+          description: "任务名"
+        - in: body
+          name: body
+          schema:
+            type: string
+          description: "查询参数"
+      responses:
+        200:
+          description: "success"
+          schema:
+            type: object
+  /job/add:
+    post:
+      tags:
+        - "job"
+      summary: "新增作业"
+      operationId: jobAdd
+      parameters:
+        - in: body
+          name: "body"
+          required: true
+          schema:
+            $ref: '#/definitions/JobAddVO'
+      responses:
+        200:
+          description: "success"
+          schema:
+            $ref: '#/definitions/VoidResponse'
+  /job/delete:
+    post:
+      tags:
+        - "job"
+      summary: "删除作业"
+      operationId: jobDelete
+      parameters:
+        - in: body
+          name: "jobIds"
+          schema:
+            type: object
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/VoidResponse'
+  /job/update:
+    post:
+      tags:
+        - "job"
+      summary: "修改作业"
+      operationId: jobUpdate
+      parameters:
+        - in: body
+          name: "jobUpdateVO"
+          required: true
+          schema:
+            $ref: '#/definitions/JobUpdateVO'
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/VoidResponse'
+  /job/list:
+    get:
+      tags:
+        - "job"
+      summary: "作业列表"
+      operationId: jobList
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/TableData'
+  /job/{jobId}:
+    get:
+      tags:
+        - "job"
+      summary: "查询作业信息"
+      operationId: jobQueryById
+      parameters:
+        - in: path
+          name: "jobId"
+          type: integer
+          format: int32
+          required: true
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/JobDetailVO'
+  /job/version/list/{jobId}:
+    get:
+      tags:
+        - "job"
+      summary: 作业版本列表
+      operationId: queryJobVersionList
+      parameters:
+        - in: path
+          name: jobId
+          type: integer
+          format: int32
+          required: true
+      responses:
+        200:
+          description: success
+          schema:
+            type: object
+            $ref: '#/definitions/JobVersionVOList'
+  /job/online/{jobId}:
+    post:
+      tags:
+        - "job"
+      summary: "上线"
+      operationId: activeJob
+      parameters:
+        - in: path
+          type: integer
+          format: int32
+          name: jobId
+          required: true
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/VoidResponse'
+  /job/offline/{jobId}:
+    post:
+      tags:
+        - "job"
+      summary: "下线"
+      operationId: CancelJob
+      parameters:
+        - in: path
+          name: jobId
+          type: integer
+          format: int32
+          required: true
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/VoidResponse'
+  /job/rollback/{jobId}:
+    post:
+      tags:
+        - "job"
+      summary: 回滚调度作业版本
+      operationId: jobRollback
+      parameters:
+        - in: path
+          name: jobId
+          type: integer
+          format: int32
+      responses:
+          200:
+            description: success
+            schema:
+              $ref: '#/definitions/VoidResponse'
+  /jobRun/stop/{jobId}:
+    post:
+      tags:
+        - "job-run"
+      summary: "停止正在运行的作业"
+      operationId: jobRunStop
+      parameters:
+        - in: path
+          name: jobId
+          type: integer
+          format: int32
+          required: true
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/VoidResponse'
+  /jobRun/list/{jobId}:
+    get:
+      tags:
+        - "job-run"
+      summary: 作业运行历史列表
+      operationId: jobRunList
+      parameters:
+        - in: query
+          name: pageNo
+          type: integer
+          format: int32
+          default: 1
+        - in: query
+          name: pageSize
+          type: integer
+          format: int32
+          default: 10
+        - in: path
+          name: jobId
+          type: integer
+          format: int32
+          required: true
+      responses:
+        200:
+          description: success
+          schema:
+            type: object
+            $ref: '#/definitions/PageInfoTaskHistoryVO'
+definitions:
+  TaskData:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/TaskInfoVO'
+      names:
+        type: array
+        items:
+          type: string
+      displayNames:
+        type: array
+        items:
+          type: string
+  TaskInfoVO:
+    type: object
+    properties:
+      taskId:
+        type: integer
+        format: int32
+      taskName:
+        type: string
+        description: 任务名称
+      appName:
+        type: string
+        description: 所属执行器appname
+      taskDesc:
+        type: string
+        description: 任务描述
+      taskSource:
+        type: integer
+        description: 任务来源：0——自动注册，1——手动注册
+      createTime:
+        type: string
+        description: 创建时间
+      updateTime:
+        type: string
+        description: 更新时间
+  DefaultResponse:
+    type: object
+    properties:
+      result:
+        type: string
+      message:
+        type: object
+  VoidResponse:
+    type: object
+    properties:
+      data:
+        type: object
+        default: true
+  JobVersionVOList:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/JobVersionVO'
+      names:
+        type: array
+        items:
+          type: string
+      displayNames:
+        type: array
+        items:
+          type: string
+  JobVersionVO:
+    type: object
+    properties:
+      jobId:
+        type: integer
+        format: int32
+      jobVersion:
+        type: string
+        description: 版本
+      updateContent:
+        type: string
+        description: 更新内容
+      updateOper:
+        type: string
+        description: 更新者
+      updateTime:
+        type: string
+        description: 更新时间
+      comment:
+        type: string
+        description: 备注
+  ProjectVO:
+    type: object
+    properties:
+      projectId:
+        type: string
+        description: 项目空间id
+      projectName:
+        type: string
+        description: 项目空间名称
+  PlanListVO:
+    type: object
+    properties:
+      planId:
+        type: string
+        description: 实验id
+      planName:
+        type: string
+        description: 实验名称
+      planVersion:
+        type: object
+        $ref: '#/definitions/PlanHistoryVO'
+  PlanHistoryVO:
+    type: object
+    properties:
+      versionName:
+        type: string
+        description: 实验版本
+      historyId:
+        type: string
+        description: 历史版本对应的id
+  JobDetailVO:
+      type: object
+      properties:
+        jobId:
+          type: integer
+          format: int32
+        jobName:
+          type: string
+          description: 作业名
+        cronExpression:
+          type: string
+          description: cron表达式
+        cronJson:
+          type: string
+          description: cron前端json，展示时使用
+        dependFormer:
+          type: boolean
+          description: 是否依赖上一周期
+          default: false
+        timeout:
+          type: number
+          format: double
+          description: 超时范围,单位小时，若为0，则表示没有超时限制
+          default: false
+        runImmediately:
+          type: boolean
+          description: 是否立即运行
+          default: false
+        comment:
+          type: string
+          description: 备注，限制字数255以内
+        jobBaseInfo:
+          type: object
+          $ref: '#/definitions/TaskListInfo'
+          description: 任务基本信息，内容和taskType有关
+        conditionInfo:
+          type: object
+          $ref: '#/definitions/ConditionInfo'
+          description: 任务条件信息
+  JobAddVO:
+    type: object
+    properties:
+      jobName:
+        type: string
+        description: 任务名
+      cronExpression:
+        type: string
+        description: cron表达式
+      cronJson:
+        type: string
+        description: cron前端json，展示时使用
+      dependFormer:
+        type: boolean
+        description: 是否依赖上一周期
+        default: false
+      timeout:
+        type: number
+        format: double
+        description: 超时范围,单位小时，若为0，则表示没有超时限制
+      runImmediately:
+        type: boolean
+        description: 是否立即运行
+        default: false
+      comment:
+        type: string
+        description: 备注，限制字数255以内
+      jobBaseInfo:
+        type: object
+        $ref: '#/definitions/TaskListInfo'
+        description: 任务列表
+      conditionInfo:
+        type: object
+        $ref: '#/definitions/ConditionInfo'
+        description: 作业条件信息
+    required:
+      - taskName
+      - projectId
+  TaskListInfo:
+    type: array
+    items:
+      $ref: '#/definitions/TaskMJobInfo'
+  TaskMJobInfo:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int32
+        description: 自增序列
+      preId:
+        type: array
+        items:
+          type: integer
+          format: int32
+        description: 前置任务数组
+      taskId:
+        type: integer
+        format: int32
+        description: 任务id
+      params:
+        type: string
+        description: 任务参数，一般是json串
+      routeStategy:
+        type: integer
+        format: int32
+        description: 路由策略:0——第一个，1——随机，2——最后一个
+      failover:
+        type: integer
+        format: int32
+        description: 失败处理策略：0——忽略继续执行，1——失败重试，2——作业结束
+      failoverValue:
+        type: string
+        description: 失败处理策略附属参数
+      timeout:
+        type: integer
+        format: int32
+        description: 超时时间，单位秒
+  ConditionInfo:
+    type: object
+    properties:
+      indateStartTime:
+        type: integer
+        format: int64
+        description: 有效起始时间
+      indateEndTime:
+        type: integer
+        format: int64
+        description: 有效终止时间
+  JobUpdateVO:
+    type: object
+    properties:
+      jobId:
+        type: integer
+        format: int32
+      jobAddVO:
+        $ref: '#/definitions/JobAddVO'
+  JobInfoVO:
+    type: object
+    properties:
+      jobId:
+        type: integer
+        format: int32
+      jobName:
+        type: string
+        description: 作业名
+      indateRange:
+        type: string
+        description: 生效时间范围
+      runState:
+        type: integer
+        format: byte
+        description: 0-运行中，1-成功，2-失败，3-待运行
+      updateOper:
+        type: string
+        description: 更新者
+        default: 0
+      updateTime:
+        type: string
+        description: 更新时间
+      comment:
+        type: string
+        description: 备注
+      state:
+        type: integer
+        description: 在线状态：下线：0，上线：1
+  TableData:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/JobInfoVO'
+      names:
+        type: array
+        items:
+          type: string
+      displayNames:
+        type: array
+        items:
+          type: string
+  JobHistoryVO:
+    type: object
+    properties:
+      jobRunId:
+        type: integer
+        format: int32
+        description: 执行id
+      jobName:
+        type: string
+        description: 作业名称
+      jobVersion:
+        type: string
+        description: 作业版本
+      executeTime:
+        type: integer
+        format: int64
+        description: 调度时间
+      runState:
+        type: integer
+        format: int32
+        description: 0-运行中，1-成功，2-失败，3-待运行
+      runStartTime:
+        type: integer
+        format: int64
+        description: 开始时间
+      runEndTime:
+        type: integer
+        format: int64
+        description: 结束时间
+      projectId:
+        type: string
+        description: 项目id
+      planId:
+        type: string
+        description: 实验id
+      historyId:
+        type: string
+        description: 历史id
+      version:
+        type: string
+        description: 版本
+  PageInfoTaskHistoryVO:
+    type: object
+    properties:
+      total:
+        type: integer
+        format: int64
+        description: 记录总数
+      pageNum:
+        type: integer
+        format: int32
+        description: 当前页码
+      pageSize:
+        type: integer
+        format: int32
+        description: 每页记录
+      size:
+        type: integer
+        format: int32
+        description: 当前页记录
+      pages:
+        type: integer
+        format: int32
+        description: 总页数
+      data:
+        type: object
+        properties:
+          voList:
+            type: array
+            items:
+              $ref: '#/definitions/JobHistoryVO'
+          names:
+            type: array
+            items:
+              type: string
+          displayNames:
+            type: array
+            items:
+              type: string

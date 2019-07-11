@@ -1,0 +1,45 @@
+server:
+  port: 8844
+spring:
+  application:
+    name: ank-scheduler
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://10.100.1.211:3306/scheduler_3.0?useSSL=false&useUnicode=true&characterEncoding=UTF-8
+    username: smartlearning
+    password: 123456
+  quartz:
+    properties:
+      org:
+        quartz:
+          scheduler:
+            instanceName: smQuartzScheduler
+            instanceId: AUTO
+            skipUpdateCheck: true
+          threadPool:
+            class: org.quartz.simpl.SimpleThreadPool
+            threadCount: 5
+            threadPriority: 5
+          jobStore:
+            class: org.quartz.impl.jdbcjobstore.JobStoreTX
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+            useProperties: true
+            tablePrefix: ML_QRTZ_
+            isClustered: true
+            clusterCheckinInterval: 20000
+            misfireThreshold: 60000
+            dataSource: sm
+          dataSource:
+            sm:
+              driver: ${spring.datasource.driver-class-name}
+              URL: ${spring.datasource.url}
+              user: ${spring.datasource.username}
+              password: ${spring.datasource.password}
+              maxConnections: 5
+              validationQuery: select 1 from dual
+mybatis:
+  mapper-locations: classpath:mapperxml/*.xml
+  type-aliases-package: ank.hao.scheduler.domain
+##心跳间隔，单位秒
+ank.scheduler:
+  heartbeat-interval: 30

@@ -1,0 +1,7 @@
+server:
+  port: 8841
+spring:
+  application:
+    name: modeling
+#调度中心地址，如果有多个调度中心，以逗号分割
+ank.scheduler.address: http://192.168.90.204:8844
