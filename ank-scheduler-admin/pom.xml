@@ -12,7 +12,7 @@
     <artifactId>ank-scheduler-admin</artifactId>
 
     <properties>
-        <springfox-version>2.6.1</springfox-version>
+        <springfox-version>2.10.0</springfox-version>
         <!-- 编译时的编码 -->
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
